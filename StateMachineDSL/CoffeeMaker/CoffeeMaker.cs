@@ -1,5 +1,6 @@
 ﻿using System;
 using StateMachineDSL;
+using StateMachineDSL.FluentInterface;
 
 namespace CoffeeMaker
 {
@@ -8,43 +9,93 @@ namespace CoffeeMaker
         static void Main(string[] args)
         {
             var stateMachine = SetupCoffeeMaker();
-            Console.WriteLine(stateMachine.CurrentState.Name);
+            Console.Write(stateMachine.CurrentState.Name + "     | ");
+            var stateMachine2 = SetupCoffeeMachineFluent();
+            Console.WriteLine(stateMachine2.CurrentState.Name);
 
-            ;
-            stateMachine.SetVariable("aKey", true);
-            bool result = stateMachine.GetVariable<bool>("aKey");
-
-            stateMachine.SetVariable("aKey2", 2);
-            int result2 = stateMachine.GetVariable<int>("aKey2");
-
-            Console.WriteLine(result);
-            Console.WriteLine(result2);
 
             while (true)
             {
                 var input = Console.ReadLine();
                 var inputEvent = new Event(input);
                 stateMachine.ProcessEvent(inputEvent);
-                Console.WriteLine(stateMachine.CurrentState.Name);
+                stateMachine2.ProcessEvent(inputEvent);
+                Console.Write(stateMachine.CurrentState.Name + "     | ");
+                Console.WriteLine(stateMachine2.CurrentState.Name);
             }
         }
 
-        static StateMachine SetupCoffeeMaker()
+        public static StateMachine SetupCoffeeMachineFluent()
+        {
+            return new CoffeeMachineBuilder().BuildStateMachine();
+        }
+        class CoffeeMachineBuilder : StateMachineBuilder
+        {
+            public States off, waitingForPayment, brewingHotWater, brewingCoffee, brewingCocoa, waitingForDrinkSelection;
+            public Events ON, PAID, WATER, COFFEE, COCOA, OFF, DONE, CUP, NOCUP;
+            public Variables cupIsPlaced;
+
+            public override StateMachine BuildStateMachine()
+            {
+
+                BooleanVariable(cupIsPlaced).SetValue(false);
+                var stateMachine = InitialState(off)
+                    .OnEvent(ON)
+                        .TransitionTo(waitingForPayment)
+                .State(waitingForPayment)
+                    .OnEvent(PAID)
+                        .TransitionTo(waitingForDrinkSelection)
+                    .OnEvent(WATER) // Water is free. Does not need payment.
+                        .CheckThat(cupIsPlaced)
+                        .TransitionTo(brewingHotWater)
+                .State(waitingForDrinkSelection)
+                    .OnEvent(COFFEE)
+                        .CheckThat(cupIsPlaced)
+                        .TransitionTo(brewingCoffee)
+                    .OnEvent(COCOA)
+                        .CheckThat(cupIsPlaced)
+                        .TransitionTo(brewingCocoa)
+                .State(brewingHotWater)
+                    .OnEvent(DONE)
+                        .TransitionTo(waitingForPayment)
+                .State(brewingCocoa)
+                    .OnEvent(DONE)
+                        .TransitionTo(waitingForPayment)
+                .State(brewingCoffee)
+                    .OnEvent(DONE)
+                        .TransitionTo(waitingForPayment)
+                .EveryState() // Add the following transitions to all states
+                    .OnEvent(OFF)
+                        .TransitionTo(off)
+                   .OnEvent(CUP)
+                        .ModifyBooleanVariable(cupIsPlaced).SetValue(true)
+                    .OnEvent(NOCUP)
+                        .ModifyBooleanVariable(cupIsPlaced).SetValue(false)
+                .Build();
+
+               return stateMachine;
+            }
+
+
+
+
+        }
+
+        public static StateMachine SetupCoffeeMaker()
         {
             var stateMachine = new StateMachine();
-            stateMachine.SetVariable("CupPlaced", false);
-            var off = new State("Off");
-            var on = new State("On");
-            var payed = new State("payed");
+            var off = new State("off");
+            var on = new State("waitingForPayment");
+            var payed = new State("waitingForDrinkSelection");
             var brewingHotWater = new State("brewingHotWater");
             var brewingCoffee = new State("brewingCoffe");
             var brewingCocoa = new State("brewingCocoa");
             stateMachine.CurrentState = off;
             var turnOn = new Event("ON");
             var turnOff = new Event("OFF");
-            var brewWater = new Event("WTR");
-            var brewCoffee = new Event("CFE");
-            var brewCocoa = new Event("COC");
+            var brewWater = new Event("WATER");
+            var brewCoffee = new Event("COFFEE");
+            var brewCocoa = new Event("COCOA");
             var paymentRecieved = new Event("PAID");
             var doneBrewing = new Event("DONE");
             var cupPlaced = new Event("CUP");
@@ -57,7 +108,7 @@ namespace CoffeeMaker
             var t2 = new Transition
             {
                 Target = brewingHotWater,
-                Condition = () => true == stateMachine.GetVariable<bool?>("cupIsPlaced")
+                Condition = () => true == stateMachine.GetVariable("cupIsPlaced", typeof(bool?))
             };
             var t3 = new Transition
             {
@@ -66,12 +117,12 @@ namespace CoffeeMaker
             var t4 = new Transition
             {
                 Target = brewingCocoa,
-                Condition = () => true == stateMachine.GetVariable<bool?>("cupIsPlaced")
+                Condition = () => true == stateMachine.GetVariable("cupIsPlaced", typeof(bool?))
             };
             var t5 = new Transition
             {
                 Target = brewingCoffee,
-                Condition = () => true == stateMachine.GetVariable<bool?>("cupIsPlaced")
+                Condition = () => true == stateMachine.GetVariable("cupIsPlaced", typeof(bool?))
             };
             var t6 = new Transition
             {

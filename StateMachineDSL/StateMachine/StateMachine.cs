@@ -36,12 +36,12 @@ namespace StateMachineDSL
             Variables[name] =  (typeof(T), value);
         }
 
-        public T GetVariable<T>(string key)
+        public dynamic GetVariable(string key, Type type)
         {
             var found = Variables.TryGetValue(key, out var result);
-            if(found && typeof (T) == result.Item1)
+            if(found && type == result.Item1)
             {
-                return (T)result.Item2;
+                return result.Item2;
             }
             else
             {
