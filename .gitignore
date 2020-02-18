@@ -8,3 +8,7 @@ StateMachineDSL/CoffeeMaker/obj/
 StateMachineDSL/StateMachine/bin/
 
 StateMachineDSL/StateMachine/obj/
+
+StateMachineDSL/DSLTests/bin/
+
+StateMachineDSL/DSLTests/obj/

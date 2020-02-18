@@ -132,6 +132,7 @@ namespace StateMachineDSL.FluentInterface
 
         ITransitionBuilder ITransitionBuilder.ModifyBooleanVariable(Variables variable)
         {
+            variable.Type = typeof(bool);
             currentTransitionActionVariable = variable;
             return this;
         }

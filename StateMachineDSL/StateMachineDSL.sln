@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoffeeMaker", "CoffeeMaker\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StateMachine", "StateMachine\StateMachine.csproj", "{924FADAA-DF9E-48E9-BF5B-068D2BBB43A8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSLTests", "DSLTests\DSLTests.csproj", "{30C4A74A-1E4E-4DE1-9CD4-B1F438FB7E9F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{924FADAA-DF9E-48E9-BF5B-068D2BBB43A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{924FADAA-DF9E-48E9-BF5B-068D2BBB43A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{924FADAA-DF9E-48E9-BF5B-068D2BBB43A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{30C4A74A-1E4E-4DE1-9CD4-B1F438FB7E9F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{30C4A74A-1E4E-4DE1-9CD4-B1F438FB7E9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{30C4A74A-1E4E-4DE1-9CD4-B1F438FB7E9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{30C4A74A-1E4E-4DE1-9CD4-B1F438FB7E9F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

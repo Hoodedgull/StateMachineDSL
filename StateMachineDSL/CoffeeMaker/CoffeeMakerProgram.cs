@@ -4,7 +4,7 @@ using StateMachineDSL.FluentInterface;
 
 namespace CoffeeMaker
 {
-    class CoffeeMaker
+    public class CoffeeMakerProgram
     {
         static void Main(string[] args)
         {
@@ -37,8 +37,6 @@ namespace CoffeeMaker
 
             public override StateMachine BuildStateMachine()
             {
-
-                BooleanVariable(cupIsPlaced).SetValue(false);
                 var stateMachine = InitialState(off)
                     .OnEvent(ON)
                         .TransitionTo(waitingForPayment)
@@ -88,7 +86,7 @@ namespace CoffeeMaker
             var on = new State("waitingForPayment");
             var payed = new State("waitingForDrinkSelection");
             var brewingHotWater = new State("brewingHotWater");
-            var brewingCoffee = new State("brewingCoffe");
+            var brewingCoffee = new State("brewingCoffee");
             var brewingCocoa = new State("brewingCocoa");
             stateMachine.CurrentState = off;
             var turnOn = new Event("ON");
@@ -108,7 +106,7 @@ namespace CoffeeMaker
             var t2 = new Transition
             {
                 Target = brewingHotWater,
-                Condition = () => true == stateMachine.GetVariable("cupIsPlaced", typeof(bool?))
+                Condition = () => true == stateMachine.GetVariable("cupIsPlaced", typeof(bool))
             };
             var t3 = new Transition
             {
@@ -117,12 +115,12 @@ namespace CoffeeMaker
             var t4 = new Transition
             {
                 Target = brewingCocoa,
-                Condition = () => true == stateMachine.GetVariable("cupIsPlaced", typeof(bool?))
+                Condition = () => true == stateMachine.GetVariable("cupIsPlaced", typeof(bool))
             };
             var t5 = new Transition
             {
                 Target = brewingCoffee,
-                Condition = () => true == stateMachine.GetVariable("cupIsPlaced", typeof(bool?))
+                Condition = () => true == stateMachine.GetVariable("cupIsPlaced", typeof(bool))
             };
             var t6 = new Transition
             {
@@ -172,19 +170,19 @@ namespace CoffeeMaker
             brewingCoffee.AddTransition(turnOff, t13);
             brewingHotWater.AddTransition(turnOff, t14);
 
-            off.AddTransition(cupPlaced, new Transition { Action = () => stateMachine.SetVariable<bool?>("cupIsPlaced", true) });
-            on.AddTransition(cupPlaced, new Transition { Action = () => stateMachine.SetVariable<bool?>("cupIsPlaced", true) });
-            payed.AddTransition(cupPlaced, new Transition { Action = () => stateMachine.SetVariable<bool?>("cupIsPlaced", true) });
-            brewingCocoa.AddTransition(cupPlaced, new Transition { Action = () => stateMachine.SetVariable<bool?>("cupIsPlaced", true) });
-            brewingCoffee.AddTransition(cupPlaced, new Transition { Action = () => stateMachine.SetVariable<bool?>("cupIsPlaced", true) });
-            brewingHotWater.AddTransition(cupPlaced, new Transition { Action = () => stateMachine.SetVariable<bool?>("cupIsPlaced", true) });
+            off.AddTransition(cupPlaced, new Transition { Action = () => stateMachine.SetVariable<bool>("cupIsPlaced", true) });
+            on.AddTransition(cupPlaced, new Transition { Action = () => stateMachine.SetVariable<bool>("cupIsPlaced", true) });
+            payed.AddTransition(cupPlaced, new Transition { Action = () => stateMachine.SetVariable<bool>("cupIsPlaced", true) });
+            brewingCocoa.AddTransition(cupPlaced, new Transition { Action = () => stateMachine.SetVariable<bool>("cupIsPlaced", true) });
+            brewingCoffee.AddTransition(cupPlaced, new Transition { Action = () => stateMachine.SetVariable<bool>("cupIsPlaced", true) });
+            brewingHotWater.AddTransition(cupPlaced, new Transition { Action = () => stateMachine.SetVariable<bool>("cupIsPlaced", true) });
 
-            off.AddTransition(cupRemoved, new Transition { Action = () => stateMachine.SetVariable<bool?>("cupIsPlaced", false) });
-            on.AddTransition(cupRemoved, new Transition { Action = () => stateMachine.SetVariable<bool?>("cupIsPlaced", false) });
-            payed.AddTransition(cupRemoved, new Transition { Action = () => stateMachine.SetVariable<bool?>("cupIsPlaced", false) });
-            brewingCocoa.AddTransition(cupRemoved, new Transition { Action = () => stateMachine.SetVariable<bool?>("cupIsPlaced", false) });
-            brewingCoffee.AddTransition(cupRemoved, new Transition { Action = () => stateMachine.SetVariable<bool?>("cupIsPlaced", false) });
-            brewingHotWater.AddTransition(cupRemoved, new Transition { Action = () => stateMachine.SetVariable<bool?>("cupIsPlaced", false) });
+            off.AddTransition(cupRemoved, new Transition { Action = () => stateMachine.SetVariable<bool>("cupIsPlaced", false) });
+            on.AddTransition(cupRemoved, new Transition { Action = () => stateMachine.SetVariable<bool>("cupIsPlaced", false) });
+            payed.AddTransition(cupRemoved, new Transition { Action = () => stateMachine.SetVariable<bool>("cupIsPlaced", false) });
+            brewingCocoa.AddTransition(cupRemoved, new Transition { Action = () => stateMachine.SetVariable<bool>("cupIsPlaced", false) });
+            brewingCoffee.AddTransition(cupRemoved, new Transition { Action = () => stateMachine.SetVariable<bool>("cupIsPlaced", false) });
+            brewingHotWater.AddTransition(cupRemoved, new Transition { Action = () => stateMachine.SetVariable<bool>("cupIsPlaced", false) });
 
 
 
