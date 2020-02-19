@@ -12,3 +12,7 @@ StateMachineDSL/StateMachine/obj/
 StateMachineDSL/DSLTests/bin/
 
 StateMachineDSL/DSLTests/obj/
+
+StateMachineDSL/CookingHood/obj/
+
+StateMachineDSL/CookingHood/bin/

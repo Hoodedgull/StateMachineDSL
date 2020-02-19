@@ -17,9 +17,9 @@ namespace StateMachineDSL
             Transitions = new List<KeyValuePair<Event, Transition>>();
         }
 
-        internal Transition GetTransition(Event ev)
+        internal IEnumerable<Transition> GetTransitions(Event ev)
         {
-            return Transitions.Where(kvp => kvp.Key.Code.Equals(ev.Code)).FirstOrDefault().Value;
+            return Transitions.Where(kvp => kvp.Key.Code.Equals(ev.Code)).Select(kvp => kvp.Value);
             
         }
 

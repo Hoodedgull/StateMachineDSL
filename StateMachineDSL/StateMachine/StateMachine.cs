@@ -13,33 +13,39 @@ namespace StateMachineDSL
         {
             Variables = new Dictionary<string, (Type, dynamic)>();
         }
-        public void ProcessEvent(Event ev){
-            var transition = CurrentState.GetTransition(ev);
-            if(transition == null)
+        public void ProcessEvent(Event ev)
+        {
+            var transitions = CurrentState.GetTransitions(ev);
+            if (transitions == null)
             {
                 return;
             }
-            // Check conditions
-            if (transition.Condition?.Invoke()==false)
-                return;
 
-            // Perform actions
-            transition.Action?.Invoke();
+            foreach (var transition in transitions)
+            {
 
-            // Set new State
-            if(transition.Target != null)
-                CurrentState = transition.Target;
+                // Check conditions
+                if (transition.Condition?.Invoke() == false)
+                    continue;
+
+                // Perform actions
+                transition.Action?.Invoke();
+
+                // Set new State
+                if (transition.Target != null)
+                    CurrentState = transition.Target;
+            }
         }
 
         public void SetVariable<T>(string name, T value)
         {
-            Variables[name] =  (typeof(T), value);
+            Variables[name] = (typeof(T), value);
         }
 
         public dynamic GetVariable(string key, Type type)
         {
             var found = Variables.TryGetValue(key, out var result);
-            if(found && type == result.Item1)
+            if (found && type == result.Item1)
             {
                 return result.Item2;
             }
