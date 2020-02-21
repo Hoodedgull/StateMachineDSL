@@ -4,7 +4,7 @@ using System;
 
 namespace CookingHood
 {
-    class CookingHoodProgram
+    public class CookingHoodProgram
     {
 
         private const int MIN_POWER = 1;
@@ -24,8 +24,8 @@ namespace CookingHood
                 var inputEvent = new Event(input);
                 stateMachine.ProcessEvent(inputEvent);
                 stateMachine2.ProcessEvent(inputEvent);
-                Console.Write(stateMachine.CurrentState.Name + "     | ");
-                Console.WriteLine(stateMachine2.CurrentState.Name);
+                Console.Write(stateMachine.CurrentState.Name + " - " + stateMachine.GetVariable<int>("power") +"   | ");
+                Console.WriteLine(stateMachine2.CurrentState.Name + " - " + stateMachine2.GetVariable<int>("power") + "      | ");
             }
         }
 
@@ -36,13 +36,35 @@ namespace CookingHood
         class CookingHoodBuilder : StateMachineBuilder
         {
 
-            public States off, waitingForPayment, brewingHotWater, brewingCoffee, brewingCocoa, waitingForDrinkSelection;
-            public Events ON, PAID, WATER, COFFEE, COCOA, OFF, DONE, CUP, NOCUP;
-            public Variables cupIsPlaced;
+            public States PowerOff, PowerOn, MaxPower;
+            public Events PLUS, MINUS;
+            public Variables<int> power;
 
             public override StateMachine BuildStateMachine()
             {
-                var stateMachine = InitialState(off)
+                var stateMachine = InitialState(PowerOff)
+                        .OnEvent(PLUS)
+                            .ModifyVariable(power).SetValue(MIN_POWER)
+                            .And().TransitionTo(PowerOn)
+                    .State(PowerOn)
+                        .OnEvent(MINUS)
+                            .CheckThat(power.IsEqualTo(MIN_POWER))
+                                .TransitionTo(PowerOff)
+                        .OnEvent(MINUS)
+                            .CheckThat(power.IsGreaterThan(MIN_POWER))
+                                .ModifyVariable(power).Subtract(1)
+                        .OnEvent(PLUS)
+                            .CheckThat(power.IsLessThan(MAX_POWER))
+                                .ModifyVariable(power).Add(1)
+                        .OnEvent(PLUS)
+                            .CheckThat(power.IsEqualTo(MAX_POWER))
+                                .TransitionTo(MaxPower)
+                    .State(MaxPower)
+                        .OnEvent(MINUS)
+                            .ModifyVariable(power).SetValue(MAX_POWER)
+                            .And().TransitionTo(PowerOn)
+                           
+                    
 
 
 
@@ -74,23 +96,23 @@ namespace CookingHood
             s2.AddTransition(plus, new Transition
             {
                 Target = s3,
-                Condition = () => stateMachine.GetVariable("power", typeof(int)) == MAX_POWER
+                Condition = () => stateMachine.GetVariable<int>("power") == MAX_POWER
             });
             s2.AddTransition(plus, new Transition
             {
-                Condition = () => stateMachine.GetVariable("power", typeof(int)) < MAX_POWER,
-                Action = () => stateMachine.SetVariable("power", stateMachine.GetVariable("power", typeof(int)) + 1)
+                Condition = () => stateMachine.GetVariable<int>("power") < MAX_POWER,
+                Action = () => stateMachine.SetVariable("power", stateMachine.GetVariable<int>("power") + 1)
             });
 
             s2.AddTransition(minus, new Transition
             {
                 Target = s1,
-                Condition = () => stateMachine.GetVariable("power", typeof(int)) == MIN_POWER
+                Condition = () => stateMachine.GetVariable<int>("power") == MIN_POWER
             });
             s2.AddTransition(minus, new Transition
             {
-                Condition = () => stateMachine.GetVariable("power", typeof(int)) > MIN_POWER,
-                Action = () => stateMachine.SetVariable("power", stateMachine.GetVariable("power", typeof(int)) - 1)
+                Condition = () => stateMachine.GetVariable<int>("power") > MIN_POWER,
+                Action = () => stateMachine.SetVariable("power", stateMachine.GetVariable<int>("power") - 1)
             });
 
             s3.AddTransition(minus, new Transition

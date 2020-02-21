@@ -33,7 +33,7 @@ namespace CoffeeMaker
         {
             public States off, waitingForPayment, brewingHotWater, brewingCoffee, brewingCocoa, waitingForDrinkSelection;
             public Events ON, PAID, WATER, COFFEE, COCOA, OFF, DONE, CUP, NOCUP;
-            public Variables cupIsPlaced;
+            public Variables<bool> cupIsPlaced;
 
             public override StateMachine BuildStateMachine()
             {
@@ -44,14 +44,14 @@ namespace CoffeeMaker
                     .OnEvent(PAID)
                         .TransitionTo(waitingForDrinkSelection)
                     .OnEvent(WATER) // Water is free. Does not need payment.
-                        .CheckThat(cupIsPlaced)
+                        .CheckThat(cupIsPlaced.IsEqualTo(true))
                         .TransitionTo(brewingHotWater)
                 .State(waitingForDrinkSelection)
                     .OnEvent(COFFEE)
-                        .CheckThat(cupIsPlaced)
+                        .CheckThat(cupIsPlaced.IsEqualTo(true))
                         .TransitionTo(brewingCoffee)
                     .OnEvent(COCOA)
-                        .CheckThat(cupIsPlaced)
+                        .CheckThat(cupIsPlaced.IsEqualTo(true))
                         .TransitionTo(brewingCocoa)
                 .State(brewingHotWater)
                     .OnEvent(DONE)
@@ -66,9 +66,9 @@ namespace CoffeeMaker
                     .OnEvent(OFF)
                         .TransitionTo(off)
                    .OnEvent(CUP)
-                        .ModifyBooleanVariable(cupIsPlaced).SetValue(true)
+                        .ModifyVariable(cupIsPlaced).SetValue(true)
                     .OnEvent(NOCUP)
-                        .ModifyBooleanVariable(cupIsPlaced).SetValue(false)
+                        .ModifyVariable(cupIsPlaced).SetValue(false)
                 .Build();
 
                return stateMachine;
@@ -106,7 +106,7 @@ namespace CoffeeMaker
             var t2 = new Transition
             {
                 Target = brewingHotWater,
-                Condition = () => true == stateMachine.GetVariable("cupIsPlaced", typeof(bool))
+                Condition = () => true == stateMachine.GetVariable<bool>("cupIsPlaced")
             };
             var t3 = new Transition
             {
@@ -115,12 +115,12 @@ namespace CoffeeMaker
             var t4 = new Transition
             {
                 Target = brewingCocoa,
-                Condition = () => true == stateMachine.GetVariable("cupIsPlaced", typeof(bool))
+                Condition = () => true == stateMachine.GetVariable<bool>("cupIsPlaced")
             };
             var t5 = new Transition
             {
                 Target = brewingCoffee,
-                Condition = () => true == stateMachine.GetVariable("cupIsPlaced", typeof(bool))
+                Condition = () => true == stateMachine.GetVariable<bool>("cupIsPlaced")
             };
             var t6 = new Transition
             {

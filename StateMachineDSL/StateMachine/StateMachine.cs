@@ -27,13 +27,17 @@ namespace StateMachineDSL
                 // Check conditions
                 if (transition.Condition?.Invoke() == false)
                     continue;
+                else
+                {
+                    // Perform actions
+                    transition.Action?.Invoke();
 
-                // Perform actions
-                transition.Action?.Invoke();
+                    // Set new State
+                    if (transition.Target != null)
+                        CurrentState = transition.Target;
 
-                // Set new State
-                if (transition.Target != null)
-                    CurrentState = transition.Target;
+                    break;
+                }
             }
         }
 
@@ -42,10 +46,10 @@ namespace StateMachineDSL
             Variables[name] = (typeof(T), value);
         }
 
-        public dynamic GetVariable(string key, Type type)
+        public T GetVariable<T>(string key)
         {
             var found = Variables.TryGetValue(key, out var result);
-            if (found && type == result.Item1)
+            if (found && typeof(T) == result.Item1)
             {
                 return result.Item2;
             }

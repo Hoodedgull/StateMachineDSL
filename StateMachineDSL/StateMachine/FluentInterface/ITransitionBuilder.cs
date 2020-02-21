@@ -8,8 +8,17 @@ namespace StateMachineDSL.FluentInterface
     {
 
         IStateMachineBuilder TransitionTo(States target);
-        ITransitionBuilder CheckThat(Variables var);
-        ITransitionBuilder ModifyBooleanVariable(Variables variable);
-        IStateMachineBuilder SetValue(dynamic value);
+        ITransitionBuilder CheckThat(Func<bool> condition);
+        IVariableBuilder<T> ModifyVariable<T>(Variables<T> variable);
+    }
+
+    public interface IVariableBuilder<T>
+    {
+        IStateMachineBuilder SetValue(T value);
+
+        IStateMachineBuilder Add(T value);
+        IStateMachineBuilder Subtract(T value);
+
+
     }
 }

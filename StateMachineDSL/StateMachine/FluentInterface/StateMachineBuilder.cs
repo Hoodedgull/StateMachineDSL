@@ -8,22 +8,17 @@ namespace StateMachineDSL.FluentInterface
     public abstract class StateMachineBuilder : IStateMachineBuilder, ITransitionBuilder
     {
         private List<States> states;
-        private List<Variables> variables;
         private States initialState;
         private List<States> currentStates;
         private Events currentEvent;
-        private Variables currentTransitionConditionVariable;
-        private Operator currentTransitionConditionOperator;
-        private dynamic currentTransitionConditionValue;
-        private Variables currentTransitionActionVariable;
-        private dynamic currentTransitionActionValue;
-        private bool shouldAddAnotherState = false;
+        private Func<bool> currentTransitionCondition;
+        private Action currentTransitionAction;
+        internal StateMachine stateMachine = new StateMachine();
 
         public StateMachineBuilder()
         {
             InitializeFields();
             states = new List<States>();
-            variables = new List<Variables>();
             currentStates = new List<States>();
         }
 
@@ -36,16 +31,35 @@ namespace StateMachineDSL.FluentInterface
             return this;
         }
 
+        internal void SetSubtractAction<T>(Variables<T> var, T value)
+        {
+            if (typeof(T) == typeof(int) || typeof(T) == typeof(float) || typeof(T) == typeof(double))
+                this.currentTransitionAction = () => stateMachine.SetVariable(var.Name, (dynamic)stateMachine.GetVariable<T>(var.Name) - (dynamic)value);
+            else
+                throw new ArgumentException("The type used in Add Should be a number");
+        }
+
+        internal void SetAddAction<T>(Variables<T> var, T value)
+        {
+            if (typeof(T) == typeof(int) || typeof(T) == typeof(float) || typeof(T) == typeof(double))
+                this.currentTransitionAction = () => stateMachine.SetVariable(var.Name, (dynamic)stateMachine.GetVariable<T>(var.Name) + (dynamic)value);
+            else
+                throw new ArgumentException("The type used in Add Should be a number");
+        }
+
         public IStateMachineBuilder State(States aState)
         {
-            if (!shouldAddAnotherState)
-                currentStates.Clear();
-
+            
+            currentStates.Clear();
             currentStates.Add(aState);
             states.Add(aState);
             return this;
         }
 
+        internal void SetAssignmentAction<T>(Variables<T> var, T value)
+        {
+            this.currentTransitionAction =  () => stateMachine.SetVariable(var.Name, value);
+        }
 
         public ITransitionBuilder OnEvent(Events ev)
         {
@@ -63,11 +77,10 @@ namespace StateMachineDSL.FluentInterface
             return this;
         }
 
-        public ITransitionBuilder CheckThat(Variables var)
+        public ITransitionBuilder CheckThat(Func<bool> condition)
         {
-            currentTransitionConditionVariable = var;
-            currentTransitionConditionOperator = Operator.EQUALS;
-            currentTransitionConditionValue = true;
+
+            currentTransitionCondition = condition;
             return this;
         }
 
@@ -82,20 +95,21 @@ namespace StateMachineDSL.FluentInterface
             {
                 var transition = new Transitions(target);
 
-                if (currentTransitionConditionVariable != null)
+                if (currentTransitionCondition != null)
                 {
-                    transition.Condition = (currentTransitionConditionOperator, currentTransitionConditionVariable, currentTransitionConditionValue);
+                    transition.Condition = currentTransitionCondition;
                 }
 
-                if (currentTransitionActionVariable != null)
+                if (currentTransitionAction != null)
                 {
-                    transition.Action = (currentTransitionActionVariable, currentTransitionActionValue);
+                    transition.Action = currentTransitionAction;
                 }
 
                 currentState.AddTransition(currentEvent, transition);
             }
             currentEvent = null;
-            currentTransitionConditionVariable = null;
+            currentTransitionCondition = null;
+            currentTransitionAction = null;
             return this;
         }
 
@@ -123,41 +137,27 @@ namespace StateMachineDSL.FluentInterface
 
         public abstract StateMachine BuildStateMachine();
 
-        public Variables BooleanVariable(Variables variable)
+
+
+        IVariableBuilder<T> ITransitionBuilder.ModifyVariable<T>(Variables<T> variable)
         {
-            variable.Type = typeof(bool);
-            variables.Add(variable);
+
             return variable;
         }
 
-        ITransitionBuilder ITransitionBuilder.ModifyBooleanVariable(Variables variable)
-        {
-            variable.Type = typeof(bool);
-            currentTransitionActionVariable = variable;
-            return this;
-        }
-
-        IStateMachineBuilder ITransitionBuilder.SetValue(dynamic value)
-        {
-            currentTransitionActionValue = value;
-            return this;
-        }
+        //IStateMachineBuilder ITransitionBuilder.SetValue(dynamic value)
+        //{
+        //    currentTransitionActionValue = value;
+        //    return this;
+        //}
 
         public StateMachine Build()
         {
             // A self-transition is still pending
-            if(currentEvent != null)
+            if (currentEvent != null)
             {
                 TransitionTo(null);
             }
-
-            // Then build
-            var stateMachine = new StateMachine();
-            foreach (var var in variables)
-            {
-                stateMachine.SetVariable(var.Name, var.Value);
-            }
-
 
             // 1st pass. Create states & events
             foreach (var state in states)
@@ -187,35 +187,15 @@ namespace StateMachineDSL.FluentInterface
                         Target = transition.Target?.BuiltState
                     };
 
-                    if (!transition.Condition.Equals(default))
+                    if (transition.Condition != null)
                     {
-                        switch (transition.Condition.op)
-                        {
-                            case Operator.EQUALS:
-                                t.Condition = () => stateMachine.GetVariable(transition.Condition.var.Name, transition.Condition.var.Type) == transition.Condition.val;
-                                break;
-                            case Operator.NotEQUALS:
-                                t.Condition = () => stateMachine.GetVariable(transition.Condition.var.Name, transition.Condition.var.Type) != transition.Condition.val;
-                                break;
-                            case Operator.GreaterThan:
-                                t.Condition = () => stateMachine.GetVariable(transition.Condition.var.Name, transition.Condition.var.Type) > transition.Condition.val;
-                                break;
-                            case Operator.LessThan:
-                                t.Condition = () => stateMachine.GetVariable(transition.Condition.var.Name, transition.Condition.var.Type) < transition.Condition.val;
-                                break;
-                            case Operator.GreaterThanOrEqual:
-                                t.Condition = () => stateMachine.GetVariable(transition.Condition.var.Name, transition.Condition.var.Type) >= transition.Condition.val;
-                                break;
-                            case Operator.LessThanOrEqual:
-                                t.Condition = () => stateMachine.GetVariable(transition.Condition.var.Name, transition.Condition.var.Type) <= transition.Condition.val;
-                                break;
-                        }
+                        t.Condition = transition.Condition;
                     }
 
 
-                    if (!transition.Action.Equals(default))
+                    if (transition.Action != null)
                     {
-                        t.Action = () => stateMachine.SetVariable(transition.Action.var.Name, transition.Action.val);
+                        t.Action = transition.Action;
                     }
 
                     stat.AddTransition(kvp.Key.BuiltEvent, t);
@@ -227,6 +207,11 @@ namespace StateMachineDSL.FluentInterface
             }
             return stateMachine;
 
+        }
+
+        public ITransitionBuilder And()
+        {
+            return this;
         }
     }
 }

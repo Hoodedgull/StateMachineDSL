@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CoffeeMaker\CoffeeMaker.csproj" />
+    <ProjectReference Include="..\CookingHood\CookingHood.csproj" />
     <ProjectReference Include="..\StateMachine\StateMachine.csproj" />
   </ItemGroup>
 

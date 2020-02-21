@@ -9,7 +9,7 @@ namespace StateMachineDSL.FluentInterface
         IStateMachineBuilder InitialState(States aState);
         IStateMachineBuilder State(States aState);
         ITransitionBuilder OnEvent(Events ev);
-        Variables BooleanVariable(Variables variable);
+        ITransitionBuilder And();
         IStateMachineBuilder EveryState();
 
         StateMachine Build();
