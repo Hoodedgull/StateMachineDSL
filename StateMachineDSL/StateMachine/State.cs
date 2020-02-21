@@ -19,7 +19,7 @@ namespace StateMachineDSL
 
         internal IEnumerable<Transition> GetTransitions(Event ev)
         {
-            return Transitions.Where(kvp => kvp.Key.Code.Equals(ev.Code)).Select(kvp => kvp.Value);
+            return Transitions.Where(kvp => kvp.Key.Code.Equals(ev.Code, StringComparison.InvariantCultureIgnoreCase)).Select(kvp => kvp.Value);
             
         }
 

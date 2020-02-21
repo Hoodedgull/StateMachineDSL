@@ -145,11 +145,6 @@ namespace StateMachineDSL.FluentInterface
             return variable;
         }
 
-        //IStateMachineBuilder ITransitionBuilder.SetValue(dynamic value)
-        //{
-        //    currentTransitionActionValue = value;
-        //    return this;
-        //}
 
         public StateMachine Build()
         {

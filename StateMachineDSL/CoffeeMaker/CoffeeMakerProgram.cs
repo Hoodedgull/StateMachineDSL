@@ -8,8 +8,9 @@ namespace CoffeeMaker
     {
         static void Main(string[] args)
         {
+            Console.WriteLine("StateMachine implemented Traditionally | StateMachine Implemented with DSL");
             var stateMachine = SetupCoffeeMaker();
-            Console.Write(stateMachine.CurrentState.Name + "     | ");
+            Console.Write(stateMachine.CurrentState.Name.PadRight(39) + "| ");
             var stateMachine2 = SetupCoffeeMachineFluent();
             Console.WriteLine(stateMachine2.CurrentState.Name);
 
@@ -20,7 +21,7 @@ namespace CoffeeMaker
                 var inputEvent = new Event(input);
                 stateMachine.ProcessEvent(inputEvent);
                 stateMachine2.ProcessEvent(inputEvent);
-                Console.Write(stateMachine.CurrentState.Name + "     | ");
+                Console.Write(stateMachine.CurrentState.Name.PadRight(39) + "| ");
                 Console.WriteLine(stateMachine2.CurrentState.Name);
             }
         }
@@ -37,7 +38,8 @@ namespace CoffeeMaker
 
             public override StateMachine BuildStateMachine()
             {
-                var stateMachine = InitialState(off)
+                var stateMachine = 
+                InitialState(off)
                     .OnEvent(ON)
                         .TransitionTo(waitingForPayment)
                 .State(waitingForPayment)
@@ -66,7 +68,7 @@ namespace CoffeeMaker
                     .OnEvent(OFF)
                         .TransitionTo(off)
                    .OnEvent(CUP)
-                        .ModifyVariable(cupIsPlaced).SetValue(true)
+                        .ModifyVariable(cupIsPlaced).Add(true)
                     .OnEvent(NOCUP)
                         .ModifyVariable(cupIsPlaced).SetValue(false)
                 .Build();

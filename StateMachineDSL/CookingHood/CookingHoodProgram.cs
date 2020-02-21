@@ -12,8 +12,10 @@ namespace CookingHood
 
         static void Main(string[] args)
         {
+            Console.WriteLine("StateMachine implemented Traditionally | StateMachine Implemented with DSL");
+            Console.WriteLine("");
             var stateMachine = SetupCookingHood();
-            Console.Write(stateMachine.CurrentState.Name + "     | ");
+            Console.Write(stateMachine.CurrentState.Name.PadRight(39)+"| ");
             var stateMachine2 = SetupCookingHoodFluent();
             Console.WriteLine(stateMachine2.CurrentState.Name);
 
@@ -24,8 +26,8 @@ namespace CookingHood
                 var inputEvent = new Event(input);
                 stateMachine.ProcessEvent(inputEvent);
                 stateMachine2.ProcessEvent(inputEvent);
-                Console.Write(stateMachine.CurrentState.Name + " - " + stateMachine.GetVariable<int>("power") +"   | ");
-                Console.WriteLine(stateMachine2.CurrentState.Name + " - " + stateMachine2.GetVariable<int>("power") + "      | ");
+                Console.Write((stateMachine.CurrentState.Name + " - " + stateMachine.GetVariable<int>("power")).PadRight(39) + "| ");
+                Console.WriteLine((stateMachine2.CurrentState.Name + " - " + stateMachine2.GetVariable<int>("power")).PadRight(39));
             }
         }
 
@@ -42,7 +44,8 @@ namespace CookingHood
 
             public override StateMachine BuildStateMachine()
             {
-                var stateMachine = InitialState(PowerOff)
+                var stateMachine = 
+                    InitialState(PowerOff)
                         .OnEvent(PLUS)
                             .ModifyVariable(power).SetValue(MIN_POWER)
                             .And().TransitionTo(PowerOn)
